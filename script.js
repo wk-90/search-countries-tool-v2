@@ -1,6 +1,7 @@
 
 // main variables
-const url = 'https://restcountries.eu/rest/v2/name/';
+//const url = 'https://restcountries.eu/rest/v2/name/';
+const url = 'https://restcountries.com/v3.1/name/';
 const countriesList = document.getElementById('countries');
 
 // hiding div with country flag, section, h2
@@ -30,19 +31,21 @@ const searchCountries = () => {
                 }
         })
         .then(json => showCountriesList(json))
+        
 }
 
 const showCountriesList = (countries) => {
     countriesList.textContent = "";
+
     h2CountriesList.style.display = "block";
 
     const input = document.getElementById('country-name').value;
 
     countries.forEach(function(item, index) {
-        if (item.name.toLowerCase().includes(input.toLowerCase())) {           
+        if (item.name.common.toLowerCase().includes(input.toLowerCase())) {           
             let li = document.createElement('li');
             li.setAttribute('key', index);
-            li.innerText = item.name;
+            li.innerText = item.name.common;
             countriesList.appendChild(li);
         }        
     })
@@ -56,26 +59,48 @@ const showCountriesList = (countries) => {
         cInfo.style.display = "block";
         cFlag.style.display = "block";
 
+        const offName = document.querySelector('#off p');
         const cname = document.getElementById('c-name');
-
         const capital = document.querySelector('#cap p');
         const population = document.querySelector('#pop p');
         const area = document.querySelector('#are p');
         const language = document.querySelector('#lan p');
         const currency = document.querySelector('#cur p');
-        const dialing = document.querySelector('#dia p');
+        //const dialing = document.querySelector('#dia p');
          
         cname.textContent = "";
-        cname.textContent = countries[clickedItem].name;
+        cname.textContent = countries[clickedItem].name.common;
 
+        offName.textContent = countries[clickedItem].name.official;
         capital.textContent = countries[clickedItem].capital;
         population.textContent = countries[clickedItem].population.toLocaleString("pl-PL");
         area.textContent = countries[clickedItem].area.toLocaleString("pl-PL");
-        language.textContent = countries[clickedItem].languages.map(l => ' ' + l.name);
-        currency.textContent = countries[clickedItem].currencies.map(c => c.name + ' - ' + c.code);
-        dialing.textContent = '+' + countries[clickedItem].callingCodes;
+        language.textContent = '';
+        const langVal = Object.values(countries[clickedItem].languages);
+        langVal.forEach((value, index, array) => {
+            if(index === array.length - 1){
+                language.textContent += value;
+            } else {
+                language.textContent += value + ', ';
+            };       
+        });
+        
+        const currencyKey = Object.keys(countries[clickedItem].currencies);
+        const currencyArray = Object.values(countries[clickedItem].currencies);
+        currency.textContent = '';
+        currencyArray.forEach((value, index, array)=> {
+            if(index === array.length -1) {
+                currency.textContent += value.name + ' - ' + currencyKey[index];
+            } else {
+                currency.textContent += value.name + ' - ' + currencyKey[index] + ', ';
+            };
+        })
 
-        document.querySelector('img').src = countries[clickedItem].flag;
+        // console.log(countries[clickedItem].currencies)
+        // console.log(Object.keys(countries[clickedItem].currencies));      
+        // console.log(currencyArray[0].name);
+        
+        document.querySelector('img').src = countries[clickedItem].flags.png;
         }))
 }
 
@@ -87,3 +112,4 @@ document.querySelector('#country-name').addEventListener('keyup', function(event
         searchCountries();
     }
 })
+
